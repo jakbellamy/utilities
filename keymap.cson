@@ -1,0 +1,3 @@
+'atom-text-editor':
+  ']': 'snippets:next-tab-stop'
+  '[': 'snippets:previous-tab-stop'

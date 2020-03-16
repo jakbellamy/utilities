@@ -1,0 +1,263 @@
+'.source.js':
+# console log
+  'console.log':
+    'prefix': 'log'
+    'body': 'console.log(${1:"hit"});$2'
+
+# if
+  'if':
+    'prefix': 'if'
+    'body': """
+      if($1){
+        $2
+      };$3
+    """
+
+# if else
+  'if, else':
+    'prefix': 'ie'
+    'body': """
+      if($1){
+        $2
+      } else {
+        $3
+      };$4
+    """
+
+# if else if else
+  'if, else if, else':
+    'prefix': 'ieie'
+    'body': """
+      if($1){
+        $2
+      } else if ($3) {
+        $4
+      } else {
+        $5
+      };$6
+    """
+
+# function
+  'function':
+    'prefix': 'func'
+    'body': """
+      const $1 = ($2) => {
+        $3
+      };$4
+    """
+
+# async function
+  'async function':
+    'prefix': 'afunc'
+    'body': """
+      const $1 = async ($2) => {
+        $3
+      };$4
+    """
+
+# switch
+  'switch statement':
+    'prefix': 'switch'
+    'body': """
+      switch($1){
+        $2
+        default:
+          $3;
+      };$4
+    """
+
+# switch case
+  'switch case':
+    'prefix': 'case'
+    'body': """
+      case $1:
+        $2;
+        break;
+      $3
+    """
+
+# ----------------------------------------------------------------------------------------------------------------
+#NODE INDEXES
+
+# basic node app
+  'basic node app':
+    'prefix': 'nodeBasic'
+    'body': """
+      //dependencies
+      const express = require('express');
+      const bodyParser = require('body-parser');
+      const cors = require('cors');
+
+      //node init
+      const app = express().use(cors());
+      const PORT = ${1:5000};
+
+      //init app w/ body parser
+      app
+        .use(bodyParser.urlencoded({extended: true}))
+        .use(bodyParser.json());
+
+      //router setup *leave commented until router is written*
+      // const router = require('./src/routes/routes.js');
+      // router(app);
+
+      //test serve @ root ('/')
+      app.get('/', (req, res) => {
+        res.send(`Node and Express are running on port: ${PORT}`);
+        console.log('server hit at root')
+      });
+
+      //listen @ PORT
+      app.listen (PORT, () => {
+        console.log(`Your server is running at port: ${PORT}`);
+      });$2
+    """
+
+# node app with mongoose
+  'node app + mongoose':
+    'prefix': 'nodeMongo'
+    'body': """
+      //dependencies
+      const express = require('express');
+      const bodyParser = require('body-parser');
+      const mongoose = require('mongoose');
+      const cors = require('cors');
+
+      //node init
+      const app = express().use(cors());
+      const PORT = ${1:5000};
+
+      //DB CONNECTION init
+      mongoose.Promise = global.Promise;
+      mongoose.connect('mongodb://localhost:27017/${2:myapp}', {useNewUrlParser: true,  useUnifiedTopology: true});
+
+      //init app w/ body parser
+      app
+        .use(bodyParser.urlencoded({extended: true}))
+        .use(bodyParser.json());
+
+      //router setup *leave commented until router is written*
+      // const router = require('./src/routes/routes.js');
+      // router(app);
+
+      //test serve @ root ('/')
+      app.get('/', (req, res) => {
+        res.send(`Node and Express are running on port: ${PORT}`);
+        console.log('server hit at root')
+      });
+
+      //listen @ PORT
+      app.listen (PORT, () => {
+        console.log(`Your server is running at port: ${PORT}`);
+      });$3
+    """
+# ----------------------------------------------------------------------------------------------------------------
+#NODE COMPONENTS
+  # router
+  'node router':
+    'prefix': 'setRouter'
+    'body': """
+    //RESTFUL CONTROLLERS
+    $1
+    module.exports = (app) => {
+      $2
+    };$3
+    """
+  # import controller
+  'import controller':
+    'prefix': 'requireCont'
+    'body': """
+      const $1Controller = require('../controllers/$2Controller');
+      $3
+    """
+  # restful routes
+  'restful routes':
+    'prefix': 'restRoutes'
+    'body': """
+      app.route('/${2}s')
+      .get($1Controller.get${1}s)
+      .post($1Controller.addNew$1);
+
+      app.route('/$2/:${2}Id')
+      .get($1Controller.get$1WithId)
+      .put($1Controller.update$1)
+      .delete($1Controller.delete$1);
+    """
+  # controller
+  'node controller':
+    'prefix': 'setController'
+    'body': """
+      const _ = require('lodash');
+      const $1 = require('../models/$2.js');
+
+      exports.addNew$1 = async(req, res) => {
+        let $2 = await $1.findOne({_id: req.body._id});
+        if($2){
+          res.send({errMsg: "$2 already exists.", succes: false})
+        };
+        $2 = new $1(_.pick(req.body, ['$3'])); //list all the model attributes from req in this array
+        await $2.save();
+        res.send({$2: $2, success: true})
+      };
+
+      exports.get$1s = (req, res) => {
+        $1.find((err, $2s) => {
+          if(err){
+            res.send(err);
+          };
+          res.send({$2s: $2s, success: true});
+        });
+      };
+
+      exports.get$1WithId = (req, res) => {
+        $1.findById(req.params.$2Id, (err, $2) => {
+          if(err){
+            res.send(err);
+          };
+          res.json($2);
+        });
+      };
+
+      exports.update$1 = (req, res) => {
+        $1.findOneAndUpdate({ _id: req.params.$2Id}, req.body, {new: true}, (err, $2) => {
+          if(err){
+            res.send(err);
+          };
+          res.json($2);
+        });
+      };
+
+      exports.delete$1 = (req, res) => {
+        $1.remove({ _id: req.params.$2Id}, (err, $2) => {
+          if(err){
+            res.send(err)
+          };
+          res.json({msg: 'Successfully deleted $2.'})
+        });
+      };
+
+    """
+  # Model
+  'mongoose model':
+    'prefix': 'setModel'
+    'body': """
+      const mongoose = require('mongoose');
+      const Schema = mongoose.Schema;
+      const $1Schema = new Schema({
+        $2: {
+          type: $3,
+          required: $4
+        }$5
+      });
+
+      module.exports =  mongoose.model('$1', $1Schema);
+    """
+  # new model attribute
+  'new mongoose attribute':
+    'prefix': 'attr'
+    'body': """
+      $1: {
+        type: $2,
+        required: $3
+      }$4
+    """
