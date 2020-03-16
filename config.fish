@@ -6,6 +6,13 @@ alias supreme='cd && cd Dev/_supreme/supremeMongo'
 alias supremeStart='supreme && atom . && npm start'
 
     #functions------------------------------------
+function rmAll
+   set -l arr (ls *)
+   for file in $arr
+       rm $file
+   end
+end
+
 function newSandbox
  cd
  cd Dev/_sandbox
